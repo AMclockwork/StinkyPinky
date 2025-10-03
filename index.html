@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Rhyme & Synonym Phrase Maker</title>
+</head>
+<body>
+  <h1>Rhyme & Synonym Phrase Maker</h1>
+  <input id="startWord" placeholder="Enter a word">
+  <button onclick="getSynonyms()">Start</button>
+
+  <div id="step1"></div>
+  <div id="step2"></div>
+  <div id="step3"></div>
+  <div id="finalResult"></div>
+
+  <script>
+    let originalWord = "", chosenSynonym = "", chosenRhyme = "";
+
+    async function getSynonyms() {
+      originalWord = document.getElementById("startWord").value.trim();
+      if (!originalWord) return;
+      const res = await fetch(`https://api.datamuse.com/words?ml=${originalWord}`);
+      const words = await res.json();
+      showOptions(words, "step1", "Pick a synonym:", selectSynonym);
+    }
+
+    function showOptions(words, id, label, callback) {
+      let div = document.getElementById(id);
+      div.innerHTML = label + "<br>";
+      let select = document.createElement("select");
+      words.slice(0, 10).forEach(w => {
+        let opt = document.createElement("option");
+        opt.value = w.word; opt.textContent = w.word;
+        select.appendChild(opt);
+      });
+      let btn = document.createElement("button");
+      btn.textContent = "OK";
+      btn.onclick = () => callback(select.value);
+      div.appendChild(select);
+      div.appendChild(btn);
+    }
+
+    async function selectSynonym(word) {
+      chosenSynonym = word;
+      const res = await fetch(`https://api.datamuse.com/words?rel_rhy=${word}`);
+      const words = await res.json();
+      showOptions(words, "step2", `Pick a rhyme for "${word}":`, selectRhyme);
+    }
+
+    async function selectRhyme(word) {
+      chosenRhyme = word;
+      const res = await fetch(`https://api.datamuse.com/words?ml=${word}`);
+      const words = await res.json();
+      showOptions(words, "step3", `Pick a synonym for "${word}":`, selectFinalWord);
+    }
+
+    function selectFinalWord(word) {
+      document.getElementById("finalResult").innerHTML =
+        `Your phrase: <b>${originalWord}</b> + <b>${word}</b><br>
+         (Rhyming pair: ${chosenSynonym} & ${chosenRhyme})`;
+    }
+  </script>
+</body>
+</html>
