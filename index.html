@@ -1,18 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rhyme & Synonym Phrase Maker</title>
+  <title>Stinky Pinky Generator</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #f9e0ff, #e3f2fd);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px;
+      animation: fadeIn 1.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    input, select, button {
+      font-size: 16px;
+      padding: 8px 12px;
+      margin: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #7a5af5;
+      box-shadow: 0 0 6px rgba(122,90,245,0.4);
+    }
+
+    button {
+      background: #7a5af5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    button:hover {
+      background: #6b4ae3;
+      transform: translateY(-1px);
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      margin-top: 20px;
+      text-align: center;
+      animation: fadeIn 1.2s ease-in;
+    }
+
+    #finalResult {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    p {
+      margin: 10px 0 5px;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
-  <h1>Rhyme & Synonym Phrase Maker</h1>
-  <input id="startWord" placeholder="Enter a word">
-  <button onclick="getSynonyms()">Start</button>
+  <h1>✨ Stinky Pinky Generator ✨</h1>
+  <div class="card">
+    <input id="startWord" placeholder="Enter a word">
+    <button onclick="getSynonyms()">Start</button>
 
-  <div id="step1"></div>
-  <div id="step2"></div>
-  <div id="step3"></div>
-  <div id="finalResult"></div>
+    <div id="step1"></div>
+    <div id="step2"></div>
+    <div id="step3"></div>
+    <div id="finalResult"></div>
+  </div>
 
   <script>
     let originalWord = "", chosenSynonym = "", chosenRhyme = "";
@@ -20,6 +99,7 @@
     async function getSynonyms() {
       originalWord = document.getElementById("startWord").value.trim();
       if (!originalWord) return;
+      clearSteps();
       const res = await fetch(`https://api.datamuse.com/words?ml=${originalWord}`);
       const words = await res.json();
       showOptions(words, "step1", "Pick a synonym:", selectSynonym);
@@ -27,11 +107,12 @@
 
     function showOptions(words, id, label, callback) {
       let div = document.getElementById(id);
-      div.innerHTML = label + "<br>";
+      div.innerHTML = `<p>${label}</p>`;
       let select = document.createElement("select");
       words.slice(0, 10).forEach(w => {
         let opt = document.createElement("option");
-        opt.value = w.word; opt.textContent = w.word;
+        opt.value = w.word;
+        opt.textContent = w.word;
         select.appendChild(opt);
       });
       let btn = document.createElement("button");
@@ -57,8 +138,15 @@
 
     function selectFinalWord(word) {
       document.getElementById("finalResult").innerHTML =
-        `Your phrase: <b>${originalWord}</b> + <b>${word}</b><br>
+        `Your Stinky Pinky: <b>${originalWord}</b> + <b>${word}</b><br>
          (Rhyming pair: ${chosenSynonym} & ${chosenRhyme})`;
+    }
+
+    function clearSteps() {
+      document.getElementById("step1").innerHTML = "";
+      document.getElementById("step2").innerHTML = "";
+      document.getElementById("step3").innerHTML = "";
+      document.getElementById("finalResult").innerHTML = "";
     }
   </script>
 </body>
